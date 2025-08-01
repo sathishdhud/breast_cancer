@@ -3,7 +3,7 @@ name: 🚀 Deploy to InfinityFree FTP
 on:
   push:
     branches:
-      - main  # Trigger on push to the main branch
+      - main  # Trigger deployment on push to 'main' branch
 
 jobs:
   ftp-deploy:
@@ -11,20 +11,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout the source code
       - name: 📥 Checkout Source Code
         uses: actions/checkout@v3
 
+      # Step 2: Install Node.js dependencies
       - name: 🛠️ Install Dependencies
         run: npm install
 
+      # Step 3: Build and export the Next.js static site
       - name: 📦 Build Static Site (Next.js)
-        run: npm run build && npm run export
+        run: |
+          npm run build
+          npm run export
 
+      # Step 4: Deploy to InfinityFree using FTP
       - name: 📤 Deploy via FTP to InfinityFree
-        uses: SamKirkland/FTP-Deploy-Action@v4
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
+          server: ${{ secrets.FTP_SERVER }}         # e.g. ftpupload.net
+          username: ${{ secrets.FTP_USERNAME }}     # e.g. epiz_12345678
           password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: ${{ secrets.FTP_TARGET_DIR }}
-          local-dir: out  # Upload only the exported static files
+          server-dir: /htdocs/                      # Default for InfinityFree (can be changed via FTP_TARGET_DIR)
+          local-dir: out                            # Output directory from 'npm run export'
+          protocol: ftp
+          dry-run: false
