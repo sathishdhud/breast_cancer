@@ -1,0 +1,30 @@
+name: 🚀 Deploy to InfinityFree FTP
+
+on:
+  push:
+    branches:
+      - main  # Trigger on push to the main branch
+
+jobs:
+  ftp-deploy:
+    name: 🔄 Upload Website to InfinityFree
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Source Code
+        uses: actions/checkout@v3
+
+      - name: 🛠️ Install Dependencies
+        run: npm install
+
+      - name: 📦 Build Static Site (Next.js)
+        run: npm run build && npm run export
+
+      - name: 📤 Deploy via FTP to InfinityFree
+        uses: SamKirkland/FTP-Deploy-Action@v4
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: ${{ secrets.FTP_TARGET_DIR }}
+          local-dir: out  # Upload only the exported static files
